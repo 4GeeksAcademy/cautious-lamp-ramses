@@ -1,5 +1,5 @@
 import React from "react";
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import Tarea from "./Tarea";
 
 
@@ -9,16 +9,21 @@ import rigoImage from "../../img/rigo-baby.jpg";
 //create your first component
 
 const Home = () => {
-	let [listaDeTareas, setlistaDeTareas] = useState([
-		"practicar react",
-		"bañar al perro",
-		"sacar la basura",
-		"hacer la cena",
-		"hacer las compras",
+	const apiUrl = "https://playground.4geeks.com/todo/users/Ramses";
 
-	])
+	let [listaDeTareas, setlistaDeTareas] = useState([])
 
 	const [nuevaTarea, setNuevaTarea] = useState()
+	const onload = () => {
+		fetch(apiUrl).then(Response =>{
+           return Response.json()
+		}).then(datos =>{
+			setlistaDeTareas(datos.todos)
+		})
+	}
+
+	useEffect(onload, [])
+
 	let agregarTarea = (key) => {
 		if (key === "Enter" && nuevaTarea?.trim()) {
 			setlistaDeTareas([...listaDeTareas, nuevaTarea.trim()]);
@@ -39,11 +44,11 @@ const Home = () => {
 				</div>
 				{
 					listaDeTareas.map((tarea, index) => {
-						return (<Tarea key={index} descripcion={tarea} onDelete={() => deleteTarea(index)} />)
+						return (<Tarea key={index} descripcion={tarea.label} onDelete={() => deleteTarea(index)} />)
 					})
 				}
 			</div>
-            {
+			{
 				<div className="d-flex justify-content-between aliggn-items-center mt-3 pt-3 border-top">
 					<small className="text-muted">
 						{listaDeTareas.length === 0
