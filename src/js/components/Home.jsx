@@ -1,5 +1,5 @@
 import React from "react";
-import { useState,useEffect } from "react";
+import { useState, useEffect } from "react";
 import Tarea from "./Tarea";
 
 
@@ -15,9 +15,9 @@ const Home = () => {
 
 	const [nuevaTarea, setNuevaTarea] = useState()
 	const onload = () => {
-		fetch(apiUrl).then(Response =>{
-           return Response.json()
-		}).then(datos =>{
+		fetch(apiUrl).then(Response => {
+			return Response.json()
+		}).then(datos => {
 			setlistaDeTareas(datos.todos)
 		})
 	}
@@ -26,12 +26,58 @@ const Home = () => {
 
 	let agregarTarea = (key) => {
 		if (key === "Enter" && nuevaTarea?.trim()) {
-			setlistaDeTareas([...listaDeTareas, nuevaTarea.trim()]);
-			setNuevaTarea("");  // Limpia el input
+			//setlistaDeTareas([...listaDeTareas, nuevaTarea.trim()]);
+			//setNuevaTarea("");  // Limpia el input
+
+			fetch('https://playground.4geeks.com/todo/todos/Ramses', {
+				method: "POST",
+				body: JSON.stringify({
+					label: nuevaTarea, is_dine: false
+				}),
+				headers: {
+					"Content-Type": "application/json"
+				}
+			})
+				.then(resp => {
+					console.log(resp.ok); // Será true si la respuesta es exitosa
+					if (resp.ok) {
+						onload()
+						setNuevaTarea("");  // Limpia el input
+					}
+					console.log(resp.status); // El código de estado 201, 300, 400, etc.
+					return resp.json(); // Intentará parsear el resultado a JSON y retornará una promesa donde puedes usar .then para seguir con la lógica
+				})
+				.then(data => {
+					// Aquí es donde debe comenzar tu código después de que finalice la búsqueda
+					console.log(data); // Esto imprimirá en la consola el objeto exacto recibido del servidor
+				})
+				.catch(error => {
+					// Manejo de errores
+					console.log(error);
+				});
 		}
 	}
-	let deleteTarea = (index) => {
-		setlistaDeTareas(listaDeTareas.filter((item, i) => index !== i))
+	let deleteTarea = (id) => {
+		//setlistaDeTareas(listaDeTareas.filter((item, i) => index !== i))
+		fetch('https://playground.4geeks.com/todo/todos/'+ id, {
+			method: "DELETE",
+			
+		})
+			.then(resp => {
+				console.log(resp.ok); // Será true si la respuesta es exitosa
+				if (resp.ok) {
+					onload()
+				
+				}
+				console.log(resp.status); // El código de estado 201, 300, 400, etc.
+				return resp.json(); // Intentará parsear el resultado a JSON y retornará una promesa donde puedes usar .then para seguir con la lógica
+			})
+			
+			.catch(error => {
+				// Manejo de errores
+				console.log(error);
+			});
+
 	}
 	return (
 		<div className="card text-center mt-5 container d-flex justify-content-center align-items-center">
@@ -44,7 +90,7 @@ const Home = () => {
 				</div>
 				{
 					listaDeTareas.map((tarea, index) => {
-						return (<Tarea key={index} descripcion={tarea.label} onDelete={() => deleteTarea(index)} />)
+						return (<Tarea key={index} descripcion={tarea.label} onDelete={() => deleteTarea(tarea.id)} />)
 					})
 				}
 			</div>
